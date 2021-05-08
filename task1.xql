@@ -1,43 +1,25 @@
 <authors_coauthors>
 {
-  for $material in doc("dblp-excerpt.xml")/dblp/*
-    for $authors in $material/author
-        return
-        for $coauthors in $material/author
-                where $authors ne $coauthors
-        return 
-            <author>
-                <name>{$authors/text()}</name>
-                <coauthors number="{count($coauthors)}">
-                    <coauthor> {$coauthors/text()} </coauthor> 
-                </coauthors>
-            </author>
+
+for $authors in distinct-values( doc("dblp-excerpt.xml")//author )
+    return
+    <author>
+        <name>{data($authors)}</name>
+        
+         <coauthors number="{number(count(distinct-values(doc("dblp-excerpt.xml")/dblp/*[author=$authors]/author)))-1}">
+            {
+            for $coauthors in distinct-values( doc("dblp-excerpt.xml")/dblp/*[author=$authors]/author )
+            where $authors ne $coauthors
+                return 
+                    <coauthor>
+                    <name> { data($coauthors) } </name>
+                    <nb_joint_pubs>
+                        {count(distinct-values(doc("dblp-excerpt.xml")/dblp/*[author=$authors]/author[.=$coauthors] ))}
+                    </nb_joint_pubs>
+                    </coauthor>
+            }
+        </coauthors>
+    </author>
+        
 }
 </authors_coauthors>
-
-(:~ 
-<authors_coauthors>
-{
-let $intermidiateResults :=
-  for $material in doc("dblp-excerpt.xml")/dblp/*
-    for $authors in $material/author
-        return
-        for $coauthors in $material/author
-                where $authors ne $coauthors
-        return 
-            <author>
-                <name>{$authors/text()}</name>
-                <coauthors number="{count($coauthors)}">
-                    <coauthor> {$coauthors/text()} </coauthor> 
-                </coauthors>
-            </author>
-
-return
-    <author>
-    {
-        for $authors in distinct-values($intermidiateResults/name)
-        return $authors
-    }
-    </author>
-}
-</authors_coauthors> ~:)
