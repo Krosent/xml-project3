@@ -2,14 +2,14 @@ xquery version "1.0";
 
 <distances>
 {
-for $select_author in distinct-values( doc("dblp-excerpt.xml")//author ),  $Co_Author in distinct-values(doc("dblp-excerpt.xml")/dblp/*[author=$select_author]/author) 
-where data($select_author) != data($Co_Author)
+for $select_author in distinct-values( doc("dblp-excerpt.xml")//author ),  $coauthor in distinct-values(doc("dblp-excerpt.xml")/dblp/*[author=$select_author]/author) 
+where data($select_author) != data($coauthor)
 order by $select_author
 
 return ( 
- <distance author1="{data($select_author)}" author2="{data($Co_Author)}" distance="1"/> 
+ <distance author1="{data($select_author)}" author2="{data($coauthor)}" distance="1"/> 
 ,
- for $other_coauthor in distinct-values(doc("dblp-excerpt.xml")/dblp/*[author=$Co_Author]/author)
+ for $other_coauthor in distinct-values(doc("dblp-excerpt.xml")/dblp/*[author=$coauthor]/author)
  where $select_author ne $other_coauthor
  return 
     for  $compare_author in distinct-values(doc("dblp-excerpt.xml")/dblp/*[author=$select_author]/author)
