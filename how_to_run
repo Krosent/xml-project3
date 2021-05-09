@@ -1,0 +1,10 @@
+# in order to run the project run following commands to get output
+
+# task 1
+java -cp saxon9he.jar net.sf.saxon.Query -s:dblp-excerpt.xml -q:task1.xql -o:out.xml
+
+# task 2
+java -cp saxon9he.jar net.sf.saxon.Query -s:dblp-excerpt.xml -q:task2.xql -o:out2.xml
+
+# task 3
+java -cp saxon9he.jar net.sf.saxon.Query -s:dblp-excerpt.xml -q:task3.xql -o:out3.xml

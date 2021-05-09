@@ -1,45 +1,29 @@
 xquery version "1.0";
-declare namespace task3Namespace = "http://task3.com/";
-
-declare function task3Namespace:Liste_co_autor($SelectAuthor as xs:string?, $other_Co_Author as xs:string?)
-as xs:string?
-{
- let $var := 0 
-
- for  $Compare_Author in distinct-values(doc("dblp-excerpt.xml")/dblp/*[author=$SelectAuthor]/author)
- where not($Compare_Author = $SelectAuthor)
- 
- return
-    if ($Compare_Author = $other_Co_Author)
-    then 
-    let $var := 1
- 
-    return 
-        if  ($var = 0)
-        then
-        <distance author1="{data($SelectAuthor)}" author2="{data($other_Co_Author)}" distance="2"/> 
-        else()
-    else()
-};
 
 <distances>
 {
-for $SelectAuthor in distinct-values( doc("dblp-excerpt.xml")//author ),  $Co_Author in distinct-values(doc("dblp-excerpt.xml")/dblp/*[author=$SelectAuthor]/author) 
-
-order by $SelectAuthor
+for $select_author in distinct-values( doc("dblp-excerpt.xml")//author ),  $Co_Author in distinct-values(doc("dblp-excerpt.xml")/dblp/*[author=$select_author]/author) 
+where data($select_author) != data($Co_Author)
+order by $select_author
 
 return ( 
-if  (data($SelectAuthor) != data($Co_Author)) 
- then
- <distance author1="{data($SelectAuthor)}" author2="{data($Co_Author)}" distance="1"/> 
- else (),
- 
- for $other_Co_Author in distinct-values(doc("dblp-excerpt.xml")/dblp/*[author=$Co_Author]/author)
+ <distance author1="{data($select_author)}" author2="{data($Co_Author)}" distance="1"/> 
+,
+ for $other_coauthor in distinct-values(doc("dblp-excerpt.xml")/dblp/*[author=$Co_Author]/author)
+ where $select_author ne $other_coauthor
  return 
-    if  ($SelectAuthor != $other_Co_Author) 
-    then
-    task3Namespace:Liste_co_autor($SelectAuthor, $other_Co_Author)
-    else() 
+    for  $compare_author in distinct-values(doc("dblp-excerpt.xml")/dblp/*[author=$select_author]/author)
+    where not($compare_author = $select_author) and $compare_author != $other_coauthor
+    return (
+        <distance author1="{data($select_author)}" author2="{data($other_coauthor)}" distance="2"/> ,
+        for $deeper_other_coauthor in distinct-values(doc("dblp-excerpt.xml")/dblp/*[author=$other_coauthor]/author)
+        where $deeper_other_coauthor ne $other_coauthor
+        return
+            for $compare_again_author in distinct-values(doc("dblp-excerpt.xml")/dblp/*[author=$compare_author]/author)
+            where not($compare_again_author = $compare_author) and $compare_again_author != $other_coauthor
+            return 
+                <distance author1="{data($compare_again_author)}" author2="{data($compare_author)}" distance="3"/> 
+    )
 )
 }
 </distances>
